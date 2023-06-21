@@ -211,6 +211,10 @@ def extract_reinforcement_photometry_metadata(
     for uuid in photometry_uuids:
         for photometry_key in photometry_metadata[uuid].keys():
             try:
+                if pd.isnull(photometry_metadata[uuid][photometry_key]) ^ pd.isnull(
+                    reinforcement_metadata[uuid][photometry_key]
+                ):
+                    continue
                 assert (
                     photometry_metadata[uuid][photometry_key] == reinforcement_metadata[uuid][photometry_key]
                 ), f"photometry metadata and reinforcement metadata don't match (photometry[{uuid}][{photometry_key}]: {photometry_metadata[uuid][photometry_key]}, reinforcement[{uuid}][{photometry_key}]: {reinforcement_metadata[uuid][photometry_key]})"
@@ -224,6 +228,10 @@ def extract_reinforcement_photometry_metadata(
     for uuid in reinforcement_uuids:
         for reinforcement_key in reinforcement_metadata[uuid].keys():
             try:
+                if pd.isnull(reinforcement_metadata[uuid][reinforcement_key]) ^ pd.isnull(
+                    photometry_metadata[uuid][reinforcement_key]
+                ):
+                    continue
                 assert (
                     photometry_metadata[uuid][reinforcement_key] == reinforcement_metadata[uuid][reinforcement_key]
                 ), f"photometry metadata and reinforcement metadata don't match (photometry[{uuid}][{reinforcement_key}]: {photometry_metadata[uuid][reinforcement_key]}, reinforcement[{uuid}][{reinforcement_key}]: {reinforcement_metadata[uuid][reinforcement_key]})"
@@ -234,6 +242,13 @@ def extract_reinforcement_photometry_metadata(
             except KeyError:
                 metadata[uuid] = {}
                 metadata[uuid][reinforcement_key] = reinforcement_metadata[uuid][reinforcement_key]
+    all_keys = set()
+    for uuid in metadata.keys():
+        all_keys = all_keys.union(set(metadata[uuid].keys()))
+    for uuid in metadata.keys():
+        for key in all_keys:
+            if not (key in metadata[uuid].keys()):
+                metadata[uuid][key] = np.NaN
     return metadata
 
 
@@ -299,7 +314,7 @@ def get_session_name(session_df):
     try:
         session_name = session_names.pop()
     except KeyError:  # No session name found
-        session_name = ""
+        session_name = np.NaN
     return session_name
 
 
@@ -315,12 +330,12 @@ if __name__ == "__main__":
         "/Volumes/T7/CatalystNeuro/NWB/Datta/dopamine-reinforces-spontaneous-behavior/metadata/reinforcement_photometry_metadata.yaml"
     )
     example_uuid = "2891f649-4fbd-4119-a807-b8ef507edfab"
-    reinforcement_metadata = extract_reinforcement_metadata(data_path, num_sessions=3)
-    photometry_metadata = extract_photometry_metadata(data_path, num_sessions=3)
-    reinforcement_photometry_metadata = extract_reinforcement_photometry_metadata(data_path, example_uuid=example_uuid)
-    with open(photometry_metadata_path, "w") as f:
-        yaml.dump(photometry_metadata, f)
-    with open(reinforcement_metadata_path, "w") as f:
-        yaml.dump(reinforcement_metadata, f)
+    # reinforcement_metadata = extract_reinforcement_metadata(data_path, num_sessions=3)
+    # photometry_metadata = extract_photometry_metadata(data_path, num_sessions=3)
+    reinforcement_photometry_metadata = extract_reinforcement_photometry_metadata(data_path, num_sessions=10)
+    # with open(photometry_metadata_path, "w") as f:
+    #     yaml.dump(photometry_metadata, f)
+    # with open(reinforcement_metadata_path, "w") as f:
+    #     yaml.dump(reinforcement_metadata, f)
     with open(reinforcement_photometry_metadata_path, "w") as f:
         yaml.dump(reinforcement_photometry_metadata, f)

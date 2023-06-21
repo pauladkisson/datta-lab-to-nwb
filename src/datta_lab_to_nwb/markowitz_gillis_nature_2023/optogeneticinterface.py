@@ -41,7 +41,8 @@ class OptogeneticInterface(BaseDataInterface):
         metadata = super().get_metadata()
         session_metadata = load_dict_from_file(self.source_data["metadata_path"])
         session_metadata = session_metadata[self.source_data["session_uuid"]]
-        metadata["Subject"]["sex"] = session_metadata["sex"]
+        if pd.isnull(session_metadata["optogenetic_area"]):
+            session_metadata["optogenetic_area"] = "N/A"
         metadata["Optogenetics"]["area"] = session_metadata["optogenetic_area"]
         metadata["Optogenetics"]["stim_frequency_Hz"] = session_metadata["stim_frequency_Hz"]
         metadata["Optogenetics"]["pulse_width_s"] = session_metadata["pulse_width_s"]
