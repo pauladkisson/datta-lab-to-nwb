@@ -414,8 +414,8 @@ if __name__ == "__main__":
     reinforcement_subject_metadata_path = metadata_path / "reinforcement_subject_metadata.yaml"
     reinforcement_photometry_session_metadata_path = metadata_path / "reinforcement_photometry_session_metadata.yaml"
     reinforcement_photometry_subject_metadata_path = metadata_path / "reinforcement_photometry_subject_metadata.yaml"
-    velocity_session_metadata_path = metadata_path / "velocity_session_metadata.yaml"
-    velocity_subject_metadata_path = metadata_path / "velocity_subject_metadata.yaml"
+    velocity_session_metadata_path = metadata_path / "velocity_modulation_session_metadata.yaml"
+    velocity_subject_metadata_path = metadata_path / "velocity_modulation_subject_metadata.yaml"
 
     # Example UUIDs
     dls_dlight_1_example = "18dc5ad5-13f0-4297-8b21-75d434770e57"

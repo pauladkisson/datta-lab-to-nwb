@@ -27,6 +27,7 @@ def session_to_nwb(
     nwbfile_path = output_dir_path / f"{session_id}.nwb"
     photometry_path = data_path / "dlight_raw_data/dlight_photometry_processed_full.parquet"
     optoda_path = data_path / "optoda_raw_data/closed_loop_behavior.parquet"
+    velocity_path = data_path / "optoda_raw_data/closed_loop_behavior_velocity_conditioned.parquet"
     metadata_path = data_path / "metadata"
     session_metadata_path = metadata_path / f"{experiment_type}_session_metadata.yaml"
     subject_metadata_path = metadata_path / f"{experiment_type}_subject_metadata.yaml"
@@ -34,6 +35,14 @@ def session_to_nwb(
     session_metadata = session_metadata[session_id]
 
     source_data, conversion_options = {}, {}
+    if "trigger_syllable" in session_metadata.keys():
+        source_data["VelocityModulation"] = dict(
+            session_metadata_path=str(session_metadata_path),
+            subject_metadata_path=str(subject_metadata_path),
+            session_uuid=session_id,
+        )
+        conversion_options["VelocityModulation"] = {}
+        optoda_path = velocity_path
     if "reinforcement" in session_metadata.keys():
         source_data["Optogenetic"] = dict(
             file_path=str(optoda_path),
@@ -73,6 +82,7 @@ def session_to_nwb(
     )
     conversion_options.update(
         dict(
+            Metadata={},
             Behavior={},
             BehavioralSyllable={},
         )
@@ -109,11 +119,13 @@ if __name__ == "__main__":
     pulsed_photometry_example = "b8360fcd-acfd-4414-9e67-ba0dc5c979a8"
     excitation_photometry_example = "95bec433-2242-4276-b8a5-6d069afa3910"
     reinforcement_photometry_examples = [figure1d_example, pulsed_photometry_example, excitation_photometry_example]
+    velocity_modulation_examples = ["0ed109ab-6876-4551-9121-c7d1277a89e4"]
 
     experiment_type2example_sessions = {
-        "reinforcement_photometry": reinforcement_photometry_examples,
-        "photometry": photometry_examples,
-        "reinforcement": reinforcement_examples,
+        # "reinforcement_photometry": reinforcement_photometry_examples,
+        # "photometry": photometry_examples,
+        # "reinforcement": reinforcement_examples,
+        "velocity_modulation": velocity_modulation_examples,
     }
     for experiment_type, example_sessions in experiment_type2example_sessions.items():
         for example_session in example_sessions:
